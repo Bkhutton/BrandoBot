@@ -12,12 +12,11 @@ class Admin(commands.Cog):
             - context: required parameter
         Description: Logsout the bot 
     """
+    @commands.is_owner()
     @commands.command(name = "shutdown")
     async def shutdown(self, context):
-        if commands.is_owner():
-            await context.bot.logout()
-        else:
-            await context.send("No permission!")
+        await context.send("Signin off...")
+        await context.bot.logout()
 
 def setup(bot):
     bot.add_cog(Admin(bot))

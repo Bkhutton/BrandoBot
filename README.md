@@ -9,6 +9,7 @@ Hobby project discord bot to play music in voice channels
 * Discord
 * Python-Dotenv
 * Youtube_dl
+* PyNaCl
 
 ### System Requirements
 FFmpeg is required for the bot to play music. Simply install from https://www.ffmpeg.org/ for the system the bot is running on. When running on a Windows machine you will need to add the directory "ffmpeg/bin" to the PATH variable.

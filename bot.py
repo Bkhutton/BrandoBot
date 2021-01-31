@@ -23,6 +23,7 @@ bot = commands.Bot(command_prefix='!')
 # Loads commands
 bot.load_extension("admin")
 bot.load_extension("music")
+bot.load_extension("emily")
 
 """
 Ready Event:

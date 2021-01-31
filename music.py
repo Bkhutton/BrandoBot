@@ -16,10 +16,15 @@ class Music(commands.Cog):
 
 
     def get_song_url(self, song):
+        # query_string = urllib.parse.urlencode({"search_query" : song})
+        # html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
+        # search_results = re.findall(r"watch\?v=(\S{11})", html_content.read().decode())
+
         query_string = urllib.parse.urlencode({"search_query" : song})
         html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
-        search_results = re.findall(r'href=\"\/watch\?v=(.{11})', html_content.read().decode())
-        return ("http://www.youtube.com/watch?v=" + search_results[0])
+        video_ids = re.findall(r"watch\?v=(\S{11})", html_content.read().decode())
+        print("https://www.youtube.com/watch?v=" + video_ids[0])
+        return ("http://www.youtube.com/watch?v=" + video_ids[0])
 
 
     """
@@ -39,6 +44,7 @@ class Music(commands.Cog):
             return
         
         guild = context.guild
+        print(guild)
         if(guild == None):
             print("Server not found")
             return
@@ -48,13 +54,17 @@ class Music(commands.Cog):
             return
         
         channel = context.author.voice.channel
+        print(channel)
         if(channel == None):
             await context.send("Need to be in a channel to play music")
             return
         try:
             voice_client = await channel.connect()
-        except:
+        except Exception as e:
             voice_client = discord.utils.get(self.bot.voice_clients, guild=guild)
+            print(e)
+        
+        print(voice_client)
 
         def check_queue(error):
             if self.queue[guild.id] != []:
@@ -77,7 +87,7 @@ class Music(commands.Cog):
             result = ydl.extract_info(url, download=False)
             outfile = ydl.prepare_filename(result)
             source = await discord.FFmpegOpusAudio.from_probe(outfile)
-            param = [guild]
+            #param = [guild]
             if not voice_client.is_playing():
                 voice_client.play(source, after=check_queue)
                 await context.send("Playing...")

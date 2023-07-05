@@ -24,7 +24,6 @@ class Music(commands.Cog):
         query_string = urllib.parse.urlencode({"search_query" : song})
         html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
         video_ids = re.findall(r"watch\?v=(\S{11})", html_content.read().decode())
-        print("https://www.youtube.com/watch?v=" + video_ids[0])
         return ("http://www.youtube.com/watch?v=" + video_ids[0])
 
 
@@ -71,7 +70,6 @@ class Music(commands.Cog):
                 source = self.queue[guild.id].pop(0)
                 voice_client.play(source, after=check_queue)
 
-        print('t1')
         ydl_opts = {'format': 'bestaudio/best',
                     'verbose': True,
                     'postprocessors': [{
@@ -84,16 +82,11 @@ class Music(commands.Cog):
                        'options': '-vn'}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             result = ydl.extract_info(url, download=False)
-            print(result['url'])
             source = discord.FFmpegPCMAudio(source=result['url'], **ffmpeg_opts)
-            print('t2')
             if not voice_client.is_playing():
-                print('t3')
                 voice_client.play(source, after=check_queue)
                 await context.send("Playing...")
-                print('t4')
             else:
-                print('t5')
                 self.queue[guild.id].append(source)
                 await context.send("Adding song to queue...")
 

@@ -7,7 +7,8 @@ import urllib.request
 import urllib.parse
 import re
 
-import youtube_dl
+# import youtube_dl
+import yt_dlp
 
 class Music(commands.Cog):
     def __init__(self,bot):
@@ -44,7 +45,7 @@ class Music(commands.Cog):
             return
 
         guild = context.guild
-        print(guild)
+
         if(guild == None):
             print("Server not found")
             return
@@ -54,7 +55,7 @@ class Music(commands.Cog):
             return
 
         channel = context.author.voice.channel
-        print(channel)
+
         if(channel == None):
             await context.send("Need to be in a channel to play music")
             return
@@ -64,34 +65,35 @@ class Music(commands.Cog):
             voice_client = discord.utils.get(self.bot.voice_clients, guild=guild)
             print(e)
 
-        print(voice_client)
 
         def check_queue(error):
             if self.queue[guild.id] != []:
                 source = self.queue[guild.id].pop(0)
                 voice_client.play(source, after=check_queue)
 
-
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-            'keepvideo' : 'True',
-            'outtmpl' : 'music/%(id)s_%(title)s.%(ext)s'
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+        print('t1')
+        ydl_opts = {'format': 'bestaudio/best',
+                    'verbose': True,
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': 'mp3',
+                        'preferredquality': '192',
+                        }],
+                    }
+        ffmpeg_opts = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -probesize 200M',
+                       'options': '-vn'}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             result = ydl.extract_info(url, download=False)
-            outfile = ydl.prepare_filename(result)
-            source = await discord.FFmpegOpusAudio.from_probe(outfile)
-            #param = [guild]
+            print(result['url'])
+            source = discord.FFmpegPCMAudio(source=result['url'], **ffmpeg_opts)
+            print('t2')
             if not voice_client.is_playing():
+                print('t3')
                 voice_client.play(source, after=check_queue)
                 await context.send("Playing...")
+                print('t4')
             else:
+                print('t5')
                 self.queue[guild.id].append(source)
                 await context.send("Adding song to queue...")
 

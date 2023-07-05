@@ -18,5 +18,5 @@ class Emily(commands.Cog):
     async def rawr(self, context):
         await context.send("xD rawrmeh ( ^ ᴗ ^ )ε^ )")
 
-def setup(bot):
-    bot.add_cog(Emily(bot))
+async def setup(bot):
+    await bot.add_cog(Emily(bot))

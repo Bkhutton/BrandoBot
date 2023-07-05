@@ -6,6 +6,7 @@
 import os
 import discord
 import shutil
+import asyncio
 
 from os import path
 from dotenv import load_dotenv
@@ -18,12 +19,15 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 # Sets command prefix to '!'
-bot = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Loads commands
-bot.load_extension("admin")
-bot.load_extension("music")
-bot.load_extension("emily")
+async def load_extensions():
+    await bot.load_extension("admin")
+    await bot.load_extension("music")
+    await bot.load_extension("emily")
 
 """
 Ready Event:
@@ -47,4 +51,9 @@ async def on_disconnect():
     os.mkdir("music/")
     print(f'{bot.user.name} has disconnected.')
 
-bot.run(TOKEN)
+async def main():
+    async with bot:
+        await load_extensions()
+        await bot.start(TOKEN)
+
+asyncio.run(main())

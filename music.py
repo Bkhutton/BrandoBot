@@ -42,7 +42,7 @@ class Music(commands.Cog):
         if(url == None):
             print("Include a song")
             return
-        
+
         guild = context.guild
         print(guild)
         if(guild == None):
@@ -52,7 +52,7 @@ class Music(commands.Cog):
         if context.author.voice == None:
             await context.send("Need to be in a voice channel to play music.")
             return
-        
+
         channel = context.author.voice.channel
         print(channel)
         if(channel == None):
@@ -63,7 +63,7 @@ class Music(commands.Cog):
         except Exception as e:
             voice_client = discord.utils.get(self.bot.voice_clients, guild=guild)
             print(e)
-        
+
         print(voice_client)
 
         def check_queue(error):
@@ -71,7 +71,7 @@ class Music(commands.Cog):
                 source = self.queue[guild.id].pop(0)
                 voice_client.play(source, after=check_queue)
 
-        
+
         ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -161,5 +161,5 @@ class Music(commands.Cog):
             pass
         await context.send("Skipping...")
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(Music(bot))

@@ -7,7 +7,7 @@ import yt_dlp
 from discord.ext import commands
 from collections import defaultdict
 
-import app.config as config
+import config
 from discord.ext import commands
 from discord.ext.commands import Context
 

@@ -25,9 +25,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Loads commands
 async def load_extensions():
-    await bot.load_extension("admin.commands.admin")
-    await bot.load_extension("musicbot.commands.music")
-    await bot.load_extension("admin.commands.emily")
+    await bot.load_extension("app.admin.commands.admin")
+    await bot.load_extension("app.musicbot.commands.music")
+    await bot.load_extension("app.admin.commands.emily")
 
 """
 Ready Event:

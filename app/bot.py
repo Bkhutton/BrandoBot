@@ -5,7 +5,6 @@
 # Imports
 import os
 import discord
-import shutil
 import asyncio
 
 from os import path
@@ -26,7 +25,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # Loads commands
 async def load_extensions():
     await bot.load_extension("admin.commands.admin")
-    await bot.load_extension("musicbot.commands.music")
+    # await bot.load_extension("musicbot.commands.music")
     await bot.load_extension("admin.commands.emily")
 
 """
@@ -36,8 +35,6 @@ Ready Event:
 """
 @bot.event
 async def on_ready():
-    if(not path.exists("music/")):
-        os.mkdir("music/")
     print(f'{bot.user.name} has connected to Discord!')
 
 """
@@ -47,8 +44,6 @@ Disconnect Event:
 """
 @bot.event
 async def on_disconnect():
-    shutil.rmtree("music/")
-    os.mkdir("music/")
     print(f'{bot.user.name} has disconnected.')
 
 async def main():

@@ -40,9 +40,11 @@ class Music(commands.Cog):
         current_guild = context.guild
 
         if not current_guild:
+            print("Guild not found")
             return
 
         if track.isspace() or not track:
+            print("Track not found")
             return
         
         if not context.author.voice or not context.author.voice.channel:

@@ -1,25 +1,24 @@
 import discord
-from discord.ext import commands
-
-from collections import defaultdict
-
 import urllib.request
 import urllib.parse
 import re
-
-# import youtube_dl
 import yt_dlp
 
+from discord.ext import commands
+from collections import defaultdict
+
+import app.config as config
+from discord.ext import commands
+from discord.ext.commands import Context
+
+
 class Music(commands.Cog):
-    def __init__(self,bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.queue = defaultdict(list)
+        self.queue = defaultdict(list) # TODO move to audiocontroller
 
 
     def get_song_url(self, song):
-        # query_string = urllib.parse.urlencode({"search_query" : song})
-        # html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
-        # search_results = re.findall(r"watch\?v=(\S{11})", html_content.read().decode())
 
         query_string = urllib.parse.urlencode({"search_query" : song})
         html_content = urllib.request.urlopen("http://www.youtube.com/results?" + query_string)
@@ -35,39 +34,52 @@ class Music(commands.Cog):
         Description: Bot will join the user's current channel and play the song requested. Sequential play commands will
                     be added to a queue to be played later
     """
-    @commands.command(name = "play", help = "Queues dat gud music")
-    async def play(self, context, *args):
-        song = "{}".format(" ".join(args))
-        url = self.get_song_url(song)
-        if(url == None):
-            print("Include a song")
+    @commands.command(name = "play", description = config.HELP_YT_LONG, help = config.HELP_YT_SHORT)
+    async def _play(self, context: Context, *args, track: str):
+
+        current_guild = context.guild
+
+        if not current_guild:
             return
 
-        guild = context.guild
-
-        if(guild == None):
-            print("Server not found")
+        if track.isspace() or not track:
             return
-
-        if context.author.voice == None:
-            await context.send("Need to be in a voice channel to play music.")
+        
+        if not context.author.voice or not context.author.voice.channel:
+            await context.reply(config.NOT_CONNECTED_TO_CHANNEL, mention_author=True)
             return
+        
+        # old code
+        # song = "{}".format(" ".join(args))
+        url = self.get_song_url(track)
+        
+        # if(url == None):
+        #     print("Include a song")
+        #     await context.reply('')
+        #     return
 
-        channel = context.author.voice.channel
+        # guild = context.guild
 
-        if(channel == None):
-            await context.send("Need to be in a channel to play music")
-            return
+
+        # if context.author.voice == None:
+        #     await context.send("Need to be in a voice channel to play music.")
+        #     return
+
+        # channel = context.author.voice.channel
+
+        # if(channel == None):
+        #     await context.send("Need to be in a channel to play music")
+        #     return
         try:
-            voice_client = await channel.connect()
+            voice_client = await context.channel.connect()
         except Exception as e:
-            voice_client = discord.utils.get(self.bot.voice_clients, guild=guild)
+            voice_client = discord.utils.get(self.bot.voice_clients, guild=context.guild)
             print(e)
 
 
         def check_queue(error):
-            if self.queue[guild.id] != []:
-                source = self.queue[guild.id].pop(0)
+            if self.queue[context.guild.id] != []:
+                source = self.queue[context.guild.id].pop(0)
                 voice_client.play(source, after=check_queue)
 
         ydl_opts = {'format': 'bestaudio/best',
@@ -85,9 +97,9 @@ class Music(commands.Cog):
             source = discord.FFmpegPCMAudio(source=result['url'], **ffmpeg_opts)
             if not voice_client.is_playing():
                 voice_client.play(source, after=check_queue)
-                await context.send("Playing...")
+                await context.reply("Playing...", mention_author=True)
             else:
-                self.queue[guild.id].append(source)
+                self.queue[context.guild.id].append(source)
                 await context.send("Adding song to queue...")
 
     """
